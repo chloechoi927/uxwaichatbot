@@ -1,1 +1,13 @@
-
+{
+  "name": "uxwaichatbot-proxy",
+  "version": "1.0.0",
+  "description": "Claude API proxy for Figma plugin",
+  "main": "api/claude.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
