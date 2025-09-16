@@ -1,0 +1,25 @@
+{
+  "name": "UX Writing Assistant for b.stage",
+  "id": "enhanced-ux-writing-tagger",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "enableProposedApi": false,
+  "networkAccess": {
+    "allowedDomains": [
+      "https://sheets.googleapis.com",
+      "https://api.anthropic.com",
+      "https://generativelanguage.googleapis.com"
+    ]
+  },
+  "permissions": [
+    "currentuser"
+  ],
+  "relaunchButtons": [
+    {
+      "command": "relaunch",
+      "name": "UX Writing Tagger"
+    }
+  ]
+}

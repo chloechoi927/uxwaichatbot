@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+<title>Enhanced UX Writing Auto Tagger</title>
+<style>
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #1d1d1f;
+    background: #f6f6f6;
+    overflow: hidden;
+  }
+
+  .container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* 헤더 */
+  .header {
+    background: white;
+    border-bottom: 1px solid #e5e5e7;
+    padding: 16px;
+    flex-shrink: 0;
+  }
+
+  .nav-tabs {
+    display: flex;
+    background: #f6f6f6;
+    border-radius: 8px;
+    padding: 2px;
+    margin-bottom: 16px;
+  }
+
+  .nav-tab {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6e6e73;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .nav-tab.active {
+    background: #007aff;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 122, 255, 0.3);
+  }
+
+  .scan-button {
+    width: 100%;
+    padding: 12px;
+    background: #007aff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .scan-button:hover:not(:disabled) {
+    background: #0056cc;
+    transform: translateY(-1px);
+  }
+
+  .scan-button:disabled {
+    background: #c7c7cc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* 메인 콘텐츠 */
+  .main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+    .status {
+    padding: 8px 16px;
+    margin: 0;
+    font-size: 11px;
+    display: none;
+    border-bottom: 1px solid transparent;
+    flex-shrink: 0;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
+    max-height: none;
+    }
+
+  .status.info {
+    background: #e3f2ff;
+    color: #0066cc;
+    border-bottom: 1px solid #b3d9ff;
+  }
+
+  .status.error {
+    background: #ffebee;
+    color: #c62828;
+    border-bottom: 1px solid #ffcdd2;
+  }
+
+  .status.success {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border-bottom: 1px solid #c8e6c9;
+  }
+
+  /* 카드 스타일 */
+  .result-card {
+    background: white;
+    border: 1px solid #e5e5e7;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .result-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .card-header {
+    padding: 16px;
+    border-bottom: 1px solid #f6f6f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .code-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .code {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #007aff;
+    background: #f0f7ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #cce7ff;
+  }
+
+  .code.existing {
+    color: #ff9500;
+    background: #fff8f0;
+    border-color: #ffcc80;
+  }
+
+  .ui-type {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #8e8e93;
+    background: #f2f2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .existing-notice {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px;
+    font-size: 12px;
+    color: #856404;
+  }
+
+  .text-content {
+    padding: 16px;
+    border-bottom: 1px solid #f6f6f6;
+  }
+
+  .text-preview {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1d1d1f;
+    word-break: keep-all;
+  }
+
+  /* 메트릭스 */
+  .metrics {
+    padding: 16px;
+    border-bottom: 1px solid #f6f6f6;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .metric {
+    text-align: center;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+  }
+
+  .metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #8e8e93;
+    font-weight: 500;
+  }
+
+  .tone-excellent { color: #34c759; }
+  .tone-good { color: #007aff; }
+  .tone-warning { color: #ff9500; }
+  .tone-poor { color: #ff3b30; }
+
+  .length-bar {
+    width: 100%;
+    height: 4px;
+    background: #e5e5ea;
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .length-fill {
+    height: 100%;
+    background: #34c759;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+  }
+
+  .length-fill.warning { background: #ff9500; }
+  .length-fill.error { background: #ff3b30; }
+
+  /* 위반사항 */
+  .violations {
+    padding: 0 16px 16px;
+    border-bottom: 1px solid #f6f6f6;
+  }
+
+  .violation {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff8f0;
+    border: 1px solid #ffe4cc;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+
+  .violation-icon {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ff9500;
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+
+  .violation-text {
+    font-size: 12px;
+    color: #8b4513;
+    line-height: 1.4;
+  }
+
+  /* 수정 제안 */
+  .suggestions {
+    padding: 16px;
+    border-bottom: 1px solid #f6f6f6;
+    background: #f0fff4;
+  }
+
+  .suggestions-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2d5016;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .suggested-text {
+    background: white;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    color: #1d1d1f;
+    line-height: 1.4;
+  }
+
+  /* 번역 섹션 */
+  .translations {
+    padding: 16px;
+    border-bottom: 1px solid #f6f6f6;
+  }
+
+  .translations-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .translation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .translation-item {
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .translation-lang {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #8e8e93;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .translation-quality {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: #34c759;
+    color: white;
+  }
+
+  .translation-quality.placeholder {
+    background: #ff9500;
+  }
+
+  .translation-text {
+    font-size: 12px;
+    color: #1d1d1f;
+    margin-bottom: 6px;
+    word-break: break-word;
+  }
+
+  .translation-length {
+    font-size: 10px;
+    color: #8e8e93;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* 액션 버튼 */
+  .actions {
+    padding: 16px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    background: white;
+    color: #1d1d1f;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn.primary {
+    background: #007aff;
+    color: white;
+    border-color: #007aff;
+  }
+
+  .btn.primary:hover:not(:disabled) {
+    background: #0056cc;
+  }
+
+  .btn.success {
+    background: #34c759;
+    color: white;
+    border-color: #34c759;
+  }
+
+  .btn.success:hover:not(:disabled) {
+    background: #2fb74a;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* 빈 상태 */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #8e8e93;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+
+  .empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1d1d1f;
+  }
+
+  .empty-subtitle {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* 로딩 */
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* 팁 */
+  .tip {
+    background: #f0f7ff;
+    border: 1px solid #cce7ff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 0;
+    font-size: 11px;
+    color: #0066cc;
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+
+  .tip-icon {
+    margin-right: 4px;
+  }
+
+  /* 스크롤바 */
+  .content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .content::-webkit-scrollbar-thumb {
+    background: #c7c7cc;
+    border-radius: 3px;
+  }
+
+  .content::-webkit-scrollbar-thumb:hover {
+    background: #aeaeb2;
+  }
+
+  /* 반응형 */
+  @media (max-width: 400px) {
+    .translation-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .actions {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-type="S">서비스 (S)</button>
+        <button class="nav-tab" data-type="A">어드민 (A)</button>
+        <button class="nav-tab" data-type="P">앱 (P)</button>
+        <button class="nav-tab" data-type="B">버튼 (B)</button>
+        <button class="nav-tab" data-type="C">공통 (C)</button>
+      </div>
+      <button class="scan-button" id="scanButton">
+        <span id="scanText">선택된 텍스트 스캔</span>
+        <div class="spinner" id="spinner" style="display: none;"></div>
+      </button>
+    </div>
+
+    <div class="main">
+      <div class="status" id="status"></div>
+      <div class="content" id="content">
+        <div id="results"></div>
+        
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">📝</div>
+          <div class="empty-title">텍스트를 선택하고 스캔해보세요</div>
+          <div class="empty-subtitle">
+            AI 검수를 통한 다국어 코드를 자동 생성하고<br>
+            보이스톤 검사를 수행합니다.
+          </div>
+        </div>
+
+        <div class="tip">
+          <span class="tip-icon">💡</span>
+          <strong>사용 방법:</strong> 피그마에서 텍스트 레이어를 선택한 후 스캔 버튼을 누르세요. 
+          Claude/Gemini AI를 통해 자연스러운 다국어 번역과 UX 라이팅 검사를 수행합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  let currentCodeType = 'S';
+  let isLoading = false;
+
+  // DOM 요소
+  const navTabs = document.getElementById('navTabs');
+  const scanButton = document.getElementById('scanButton');
+  const scanText = document.getElementById('scanText');
+  const spinner = document.getElementById('spinner');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+  const emptyState = document.getElementById('emptyState');
+
+  // 네비게이션 탭 이벤트
+  navTabs.addEventListener('click', (e) => {
+    if (e.target.classList.contains('nav-tab')) {
+      navTabs.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+      e.target.classList.add('active');
+      currentCodeType = e.target.dataset.type;
+    }
+  });
+
+  // 스캔 버튼 이벤트
+  scanButton.addEventListener('click', () => {
+    if (isLoading) return;
+    
+    setLoading(true);
+    hideStatus();
+    postMessage({ type: 'scan-selection', codeType: currentCodeType });
+  });
+
+  // 로딩 상태 관리
+  function setLoading(loading) {
+    isLoading = loading;
+    scanButton.disabled = loading;
+    
+    if (loading) {
+      scanText.style.display = 'none';
+      spinner.style.display = 'block';
+    } else {
+      scanText.style.display = 'block';
+      spinner.style.display = 'none';
+    }
+  }
+
+  // 상태 메시지 표시
+  function showStatus(message, type = 'info') {
+    status.textContent = message;
+    status.className = `status ${type}`;
+    status.style.display = 'block';
+  }
+
+  function hideStatus() {
+    status.style.display = 'none';
+  }
+
+  // 톤 스코어 클래스
+  function getToneScoreClass(score) {
+    if (score >= 95) return 'tone-excellent';
+    if (score >= 85) return 'tone-good';
+    if (score >= 70) return 'tone-warning';
+    return 'tone-poor';
+  }
+
+  // 길이 정보 렌더링
+  function renderLengthMetric(lengthInfo) {
+    if (!lengthInfo || lengthInfo.status === 'unknown') {
+      return `
+        <div class="metric-value">-</div>
+        <div class="metric-label">Length</div>
+      `;
+    }
+
+    const percentage = Math.min(100, lengthInfo.percentage || 0);
+    const fillClass = lengthInfo.status === 'ok' ? '' : 
+                      percentage <= 120 ? 'warning' : 'error';
+
+    const statusIcon = lengthInfo.status === 'ok' ? '✓' : '!';
+
+    return `
+      <div class="metric-value">${lengthInfo.current}/${lengthInfo.max} ${statusIcon}</div>
+      <div class="metric-label">Length (KO)</div>
+      <div class="length-bar">
+        <div class="length-fill ${fillClass}" style="width: ${percentage}%"></div>
+      </div>
+    `;
+  }
+
+  // 위반사항 렌더링
+  function renderViolations(violations) {
+    if (!violations || !violations.length) return '';
+
+    return `
+      <div class="violations">
+        ${violations.map(v => `
+          <div class="violation">
+            <div class="violation-icon"></div>
+            <div class="violation-text">${v.reason}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // 수정 제안 렌더링
+  function renderSuggestions(violations, originalText) {
+    if (!violations || !violations.length) return '';
+
+    let correctedText = originalText;
+    violations.forEach(v => {
+      if (v.suggested && v.suggested !== originalText) {
+        correctedText = v.suggested;
+      }
+    });
+
+    if (correctedText === originalText) return '';
+
+    return `
+      <div class="suggestions">
+        <div class="suggestions-title">
+          <span>🔧</span>
+          자동 수정 제안
+        </div>
+        <div class="suggested-text">${correctedText}</div>
+      </div>
+    `;
+  }
+
+  // 번역 결과 렌더링
+  function renderTranslations(translations) {
+    if (!translations) return '';
+
+    const langNames = {
+      en: 'English',
+      ja: '日本語',
+      'zh-cn': '中文简',
+      'zh-tw': '中文繁',
+      es: 'Español',
+      vi: 'Tiếng Việt'
+    };
+
+    return `
+      <div class="translations">
+        <div class="translations-title">
+          <span>🌐</span>
+          AI 다국어 번역
+        </div>
+        <div class="translation-grid">
+          ${Object.entries(translations).map(([lang, data]) => {
+            const lengthStatus = data.length.status === 'ok' ? '✓' : 
+                               data.length.status === 'too-long' ? '!' : '?';
+            const qualityLabel = data.quality === 'ux-guided' ? 'UX' : 
+                    data.quality === 'ai-generated' ? 'AI' : 'DEV';
+            const qualityClass = data.quality === 'ai-generated' ? '' : 'placeholder';
+
+            return `
+              <div class="translation-item">
+                <div class="translation-lang">
+                  ${langNames[lang] || lang}
+                  <span class="translation-quality ${qualityClass}">${qualityLabel}</span>
+                </div>
+                <div class="translation-text">${data.text}</div>
+                <div class="translation-length">
+                  ${data.length.current || 0}/${data.length.max || 0} ${lengthStatus}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // 결과 카드 렌더링
+  function renderResultCard(item) {
+    const isExisting = item.type === 'existing';
+    const report = item.report || {};
+    const toneScore = report.toneScore || 100;
+    const violations = report.toneViolations || [];
+    const lengthInfo = report.length || {};
+    const translations = report.translations || {};
+
+    return `
+      <div class="result-card">
+        <div class="card-header">
+          <div class="code-info">
+            <div class="code ${isExisting ? 'existing' : ''}">${item.code}</div>
+            <div class="ui-type">${item.uiType}</div>
+          </div>
+        </div>
+        
+        ${isExisting ? `
+          <div class="existing-notice">
+            ⚠️ <strong>기존 코드 발견</strong> - 동일한 텍스트가 이미 등록되어 있습니다.
+          </div>
+        ` : ''}
+        
+        <div class="text-content">
+          <div class="text-preview">${item.text}</div>
+        </div>
+        
+        ${!isExisting ? `
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-value ${getToneScoreClass(toneScore)}">${toneScore}</div>
+              <div class="metric-label">Tone Score</div>
+            </div>
+            <div class="metric">
+              ${renderLengthMetric(lengthInfo)}
+            </div>
+          </div>
+          
+          ${renderViolations(violations)}
+          ${renderSuggestions(violations, item.text)}
+          ${renderTranslations(translations)}
+        ` : ''}
+        
+        <div class="actions">
+          <button class="btn primary apply-code" data-node-id="${item.nodeId}" data-code="${item.code}">
+            레이어에 코드 적용
+          </button>
+          ${!isExisting && violations.length > 0 ? `
+            <button class="btn success apply-corrections" data-node-id="${item.nodeId}" data-text="${encodeURIComponent(violations[0].suggested || item.text)}">
+              텍스트 수정 적용
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // 결과 렌더링
+  function renderResults(data) {
+    emptyState.style.display = 'none';
+    
+    if (!data || !data.length) {
+      results.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    results.innerHTML = data.map(renderResultCard).join('');
+    
+    // 이벤트 리스너 추가
+    results.querySelectorAll('.apply-code').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const nodeId = e.target.dataset.nodeId;
+        const code = e.target.dataset.code;
+        postMessage({ type: 'apply-code', data: { nodeId, code } });
+        e.target.textContent = '적용됨 ✓';
+        e.target.disabled = true;
+      });
+    });
+
+    results.querySelectorAll('.apply-corrections').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const nodeId = e.target.dataset.nodeId;
+        const correctedText = decodeURIComponent(e.target.dataset.text);
+        postMessage({ type: 'apply-corrections', data: { nodeId, correctedText } });
+        e.target.textContent = '수정됨 ✓';
+        e.target.disabled = true;
+      });
+    });
+  }
+
+  // 메시지 전송
+  function postMessage(message) {
+    parent.postMessage({ pluginMessage: message }, '*');
+  }
+
+  // 메시지 수신 처리
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+    if (!msg) return;
+
+    switch (msg.type) {
+      case 'ready':
+        showStatus('플러그인이 준비되었습니다.', 'success');
+        setTimeout(hideStatus, 2000);
+        break;
+
+      case 'loading':
+        setLoading(true);
+        showStatus(msg.message || '처리 중...', 'info');
+        break;
+
+      case 'error':
+        setLoading(false);
+        showStatus(msg.message, 'error');
+        break;
+
+      case 'scan-results':
+        setLoading(false);
+        hideStatus();
+        renderResults(msg.data);
+        
+        if (msg.data && msg.data.length > 0) {
+          const newCount = msg.data.filter(item => item.type === 'new').length;
+          const existingCount = msg.data.filter(item => item.type === 'existing').length;
+          
+          let message = `${msg.data.length}개 텍스트 분석 완료`;
+          if (newCount > 0 && existingCount > 0) {
+            message += ` (신규 ${newCount}개, 기존 ${existingCount}개)`;
+          } else if (newCount > 0) {
+            message += ` (신규 코드 ${newCount}개 생성)`;
+          } else if (existingCount > 0) {
+            message += ` (기존 코드 ${existingCount}개 발견)`;
+          }
+          
+          showStatus(message, 'success');
+          setTimeout(hideStatus, 3000);
+        }
+        break;
+    }
+  };
+
+  // 초기화
+  postMessage({ type: 'init' });
+})();
+</script>
+</body>
+</html>
