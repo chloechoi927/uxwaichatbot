@@ -4,7 +4,7 @@ const CONFIG = {
   PROXY_API_URL: 'https://uxwaichatbot-ai.vercel.app/api/claude',
   
   GOOGLE_SHEETS_API_KEY: 'AIzaSyD96DGqwpEaI6aenSZs0fxDdt0vr-mJNqO',
-  CLAUDE_API_KEY: 'sk-ant-api03-0zrIx9y7JN4C7caR8MDRF-fQqYIAVJ6Gd21QEC_V7wbVPjv-73cvQS-QCOaES9BGmmaKH5oBzY7_r1_2cn7hJg-nt1ICQAA', // 회사 클로드 API 키로 교체
+  CLAUDE_API_KEY: '', // Vercel 환경변수에서 사용
   GEMINI_API_KEY: '', // 지원하지 않음
   SHEET_ID: '1CX3NHfp4cZ_ryflPMV3GkApjYd-J6XzypfrK9-x4-9E',
   SHEETS: {
