@@ -5,15 +5,21 @@
   "main": "code.js", 
   "ui": "ui.html",
   "editorType": ["figma"],
+  {
   "networkAccess": {
-     "allowedDomains": [
-     "https://static.figma.com",
-     "https://www.figma.com",
-     "https://figma.com",
-     "https://s3-alpha.figma.com"
+    "allowedDomains": [
+      "https://static.figma.com",
+      "https://www.figma.com", 
+      "https://figma.com",
+      "https://s3-alpha.figma.com",
+      "https://uxwaichatbot-ai.vercel.app",
+      "https://sheets.googleapis.com"
     ]
-  },
+  }
+,
   "permissions": [
     "currentuser"
   ]
 }
+
+
