@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
 <title>Enhanced UX Writing Auto Tagger</title>
 <style>
@@ -29,7 +30,7 @@
     overflow: hidden;
   }
 
-  /* 헤더 */
+  /* Header */
   .header {
     background: white;
     border-bottom: 1px solid #e5e5e7;
@@ -92,7 +93,7 @@
     transform: none;
   }
 
-  /* 메인 콘텐츠 */
+  /* Main content */
   .main {
     flex: 1;
     overflow: hidden;
@@ -106,7 +107,7 @@
     padding: 16px;
   }
 
-    .status {
+  .status {
     padding: 8px 16px;
     margin: 0;
     font-size: 11px;
@@ -117,7 +118,7 @@
     white-space: normal;
     line-height: 1.4;
     max-height: none;
-    }
+  }
 
   .status.info {
     background: #e3f2ff;
@@ -137,7 +138,7 @@
     border-bottom: 1px solid #c8e6c9;
   }
 
-  /* 카드 스타일 */
+  /* Card style */
   .result-card {
     background: white;
     border: 1px solid #e5e5e7;
@@ -218,7 +219,7 @@
     word-break: keep-all;
   }
 
-  /* 메트릭스 */
+  /* Metrics */
   .metrics {
     padding: 16px;
     border-bottom: 1px solid #f6f6f6;
@@ -273,7 +274,7 @@
   .length-fill.warning { background: #ff9500; }
   .length-fill.error { background: #ff3b30; }
 
-  /* 위반사항 */
+  /* Violations */
   .violations {
     padding: 0 16px 16px;
     border-bottom: 1px solid #f6f6f6;
@@ -305,7 +306,7 @@
     line-height: 1.4;
   }
 
-  /* 수정 제안 */
+  /* Suggestions */
   .suggestions {
     padding: 16px;
     border-bottom: 1px solid #f6f6f6;
@@ -332,7 +333,7 @@
     line-height: 1.4;
   }
 
-  /* 번역 섹션 */
+  /* Translation section */
   .translations {
     padding: 16px;
     border-bottom: 1px solid #f6f6f6;
@@ -399,7 +400,7 @@
     gap: 4px;
   }
 
-  /* 액션 버튼 */
+  /* Action buttons */
   .actions {
     padding: 16px;
     display: flex;
@@ -451,7 +452,7 @@
     transform: none;
   }
 
-  /* 빈 상태 */
+  /* Empty state */
   .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -476,7 +477,7 @@
     line-height: 1.5;
   }
 
-  /* 로딩 */
+  /* Loading */
   .spinner {
     width: 16px;
     height: 16px;
@@ -491,7 +492,7 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* 팁 */
+  /* Tip */
   .tip {
     background: #f0f7ff;
     border: 1px solid #cce7ff;
@@ -509,7 +510,7 @@
     margin-right: 4px;
   }
 
-  /* 스크롤바 */
+  /* Scrollbar */
   .content::-webkit-scrollbar {
     width: 6px;
   }
@@ -527,7 +528,7 @@
     background: #aeaeb2;
   }
 
-  /* 반응형 */
+  /* Responsive */
   @media (max-width: 400px) {
     .translation-grid {
       grid-template-columns: 1fr;
@@ -543,14 +544,14 @@
   <div class="container">
     <div class="header">
       <div class="nav-tabs" id="navTabs">
-        <button class="nav-tab active" data-type="S">서비스 (S)</button>
-        <button class="nav-tab" data-type="A">어드민 (A)</button>
-        <button class="nav-tab" data-type="P">앱 (P)</button>
-        <button class="nav-tab" data-type="B">버튼 (B)</button>
-        <button class="nav-tab" data-type="C">공통 (C)</button>
+        <button class="nav-tab active" data-type="S">Service (S)</button>
+        <button class="nav-tab" data-type="A">Admin (A)</button>
+        <button class="nav-tab" data-type="P">App (P)</button>
+        <button class="nav-tab" data-type="B">Button (B)</button>
+        <button class="nav-tab" data-type="C">Common (C)</button>
       </div>
       <button class="scan-button" id="scanButton">
-        <span id="scanText">선택된 텍스트 스캔</span>
+        <span id="scanText">Scan Selected Text</span>
         <div class="spinner" id="spinner" style="display: none;"></div>
       </button>
     </div>
@@ -561,18 +562,18 @@
         <div id="results"></div>
         
         <div class="empty-state" id="emptyState">
-          <div class="empty-icon">📝</div>
-          <div class="empty-title">텍스트를 선택하고 스캔해보세요</div>
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">Select text and scan</div>
           <div class="empty-subtitle">
-            AI 검수를 통한 다국어 코드를 자동 생성하고<br>
-            보이스톤 검사를 수행합니다.
+            Auto-generate multilingual codes with AI review<br>
+            and perform voice tone inspection.
           </div>
         </div>
 
         <div class="tip">
           <span class="tip-icon">💡</span>
-          <strong>사용 방법:</strong> 피그마에서 텍스트 레이어를 선택한 후 스캔 버튼을 누르세요. 
-          Claude/Gemini AI를 통해 자연스러운 다국어 번역과 UX 라이팅 검사를 수행합니다.
+          <strong>How to use:</strong> Select text layers in Figma and click the scan button. 
+          Perform natural multilingual translation and UX writing inspection through Claude AI.
         </div>
       </div>
     </div>
@@ -583,7 +584,7 @@
   let currentCodeType = 'S';
   let isLoading = false;
 
-  // DOM 요소
+  // DOM elements
   const navTabs = document.getElementById('navTabs');
   const scanButton = document.getElementById('scanButton');
   const scanText = document.getElementById('scanText');
@@ -592,7 +593,7 @@
   const results = document.getElementById('results');
   const emptyState = document.getElementById('emptyState');
 
-  // 네비게이션 탭 이벤트
+  // Navigation tab events
   navTabs.addEventListener('click', (e) => {
     if (e.target.classList.contains('nav-tab')) {
       navTabs.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -601,7 +602,7 @@
     }
   });
 
-  // 스캔 버튼 이벤트
+  // Scan button event
   scanButton.addEventListener('click', () => {
     if (isLoading) return;
     
@@ -610,7 +611,7 @@
     postMessage({ type: 'scan-selection', codeType: currentCodeType });
   });
 
-  // 로딩 상태 관리
+  // Loading state management
   function setLoading(loading) {
     isLoading = loading;
     scanButton.disabled = loading;
@@ -624,7 +625,7 @@
     }
   }
 
-  // 상태 메시지 표시
+  // Status message display
   function showStatus(message, type = 'info') {
     status.textContent = message;
     status.className = `status ${type}`;
@@ -635,7 +636,7 @@
     status.style.display = 'none';
   }
 
-  // 톤 스코어 클래스
+  // Tone score class
   function getToneScoreClass(score) {
     if (score >= 95) return 'tone-excellent';
     if (score >= 85) return 'tone-good';
@@ -643,7 +644,7 @@
     return 'tone-poor';
   }
 
-  // 길이 정보 렌더링
+  // Length info rendering
   function renderLengthMetric(lengthInfo) {
     if (!lengthInfo || lengthInfo.status === 'unknown') {
       return `
@@ -667,7 +668,7 @@
     `;
   }
 
-  // 위반사항 렌더링
+  // Violations rendering
   function renderViolations(violations) {
     if (!violations || !violations.length) return '';
 
@@ -683,7 +684,7 @@
     `;
   }
 
-  // 수정 제안 렌더링
+  // Suggestions rendering
   function renderSuggestions(violations, originalText) {
     if (!violations || !violations.length) return '';
 
@@ -700,14 +701,14 @@
       <div class="suggestions">
         <div class="suggestions-title">
           <span>🔧</span>
-          자동 수정 제안
+          Auto Correction Suggestion
         </div>
         <div class="suggested-text">${correctedText}</div>
       </div>
     `;
   }
 
-  // 번역 결과 렌더링
+  // Translation results rendering
   function renderTranslations(translations) {
     if (!translations) return '';
 
@@ -724,7 +725,7 @@
       <div class="translations">
         <div class="translations-title">
           <span>🌐</span>
-          AI 다국어 번역
+          AI Multilingual Translation
         </div>
         <div class="translation-grid">
           ${Object.entries(translations).map(([lang, data]) => {
@@ -752,7 +753,7 @@
     `;
   }
 
-  // 결과 카드 렌더링
+  // Result card rendering
   function renderResultCard(item) {
     const isExisting = item.type === 'existing';
     const report = item.report || {};
@@ -772,7 +773,7 @@
         
         ${isExisting ? `
           <div class="existing-notice">
-            ⚠️ <strong>기존 코드 발견</strong> - 동일한 텍스트가 이미 등록되어 있습니다.
+            ⚠️ <strong>Existing Code Found</strong> - Same text already registered.
           </div>
         ` : ''}
         
@@ -798,11 +799,11 @@
         
         <div class="actions">
           <button class="btn primary apply-code" data-node-id="${item.nodeId}" data-code="${item.code}">
-            레이어에 코드 적용
+            Apply Code to Layer
           </button>
           ${!isExisting && violations.length > 0 ? `
             <button class="btn success apply-corrections" data-node-id="${item.nodeId}" data-text="${encodeURIComponent(violations[0].suggested || item.text)}">
-              텍스트 수정 적용
+              Apply Text Correction
             </button>
           ` : ''}
         </div>
@@ -810,7 +811,7 @@
     `;
   }
 
-  // 결과 렌더링
+  // Results rendering
   function renderResults(data) {
     emptyState.style.display = 'none';
     
@@ -822,13 +823,13 @@
 
     results.innerHTML = data.map(renderResultCard).join('');
     
-    // 이벤트 리스너 추가
+    // Add event listeners
     results.querySelectorAll('.apply-code').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const nodeId = e.target.dataset.nodeId;
         const code = e.target.dataset.code;
         postMessage({ type: 'apply-code', data: { nodeId, code } });
-        e.target.textContent = '적용됨 ✓';
+        e.target.textContent = 'Applied ✓';
         e.target.disabled = true;
       });
     });
@@ -838,31 +839,31 @@
         const nodeId = e.target.dataset.nodeId;
         const correctedText = decodeURIComponent(e.target.dataset.text);
         postMessage({ type: 'apply-corrections', data: { nodeId, correctedText } });
-        e.target.textContent = '수정됨 ✓';
+        e.target.textContent = 'Corrected ✓';
         e.target.disabled = true;
       });
     });
   }
 
-  // 메시지 전송
+  // Message sending
   function postMessage(message) {
     parent.postMessage({ pluginMessage: message }, '*');
   }
 
-  // 메시지 수신 처리
+  // Message receiving handling
   window.onmessage = (event) => {
     const msg = event.data.pluginMessage;
     if (!msg) return;
 
     switch (msg.type) {
       case 'ready':
-        showStatus('플러그인이 준비되었습니다.', 'success');
+        showStatus('Plugin is ready.', 'success');
         setTimeout(hideStatus, 2000);
         break;
 
       case 'loading':
         setLoading(true);
-        showStatus(msg.message || '처리 중...', 'info');
+        showStatus(msg.message || 'Processing...', 'info');
         break;
 
       case 'error':
@@ -879,13 +880,13 @@
           const newCount = msg.data.filter(item => item.type === 'new').length;
           const existingCount = msg.data.filter(item => item.type === 'existing').length;
           
-          let message = `${msg.data.length}개 텍스트 분석 완료`;
+          let message = `${msg.data.length} texts analyzed`;
           if (newCount > 0 && existingCount > 0) {
-            message += ` (신규 ${newCount}개, 기존 ${existingCount}개)`;
+            message += ` (${newCount} new, ${existingCount} existing)`;
           } else if (newCount > 0) {
-            message += ` (신규 코드 ${newCount}개 생성)`;
+            message += ` (${newCount} new codes generated)`;
           } else if (existingCount > 0) {
-            message += ` (기존 코드 ${existingCount}개 발견)`;
+            message += ` (${existingCount} existing codes found)`;
           }
           
           showStatus(message, 'success');
@@ -895,7 +896,7 @@
     }
   };
 
-  // 초기화
+  // Initialization
   postMessage({ type: 'init' });
 })();
 </script>
