@@ -1,6 +1,6 @@
 {
   "name": "UX Writing Assistant for b.stage",
-  "id": "enhanced-ux-writing-tagger",
+  "id": "enhanced-ux-writing-tagger-v2",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
