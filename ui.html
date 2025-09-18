@@ -718,8 +718,8 @@
     }
   }
 
-  // 클립보드 복사 기능
-  function copyToClipboard(text) {
+  // 클립보드 복사 기능 (전역 함수로 등록)
+  window.copyToClipboard = function(text) {
     // 텍스트를 클립보드에 복사
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => {
@@ -769,7 +769,7 @@
       btn.innerHTML = originalContent;
       btn.style.color = '#6b7280';
     }, 1000);
-  }
+  };
 
   // 텍스트 수정 적용 기능
   function applyTextModification() {
@@ -792,6 +792,30 @@
       }
     }, '*');
   }
+
+  // 메시지 리스너
+  window.addEventListener('message', (event) => {
+    const { type, data, message, error } = event.data;
+    
+    if (type === 'ready') {
+      hideStatus();
+    } else if (type === 'loading') {
+      showStatus(message, 'loading');
+    } else if (type === 'scan-results') {
+      hideStatus();
+      renderResults(data);
+    } else if (type === 'error') {
+      hideStatus();
+      showStatus(message, 'error');
+    } else if (type === 'success') {
+      hideStatus();
+      showStatus(message, 'success');
+    } else if (type === 'code-generated') {
+      showStatus('코드가 생성되었습니다: ' + data.code, 'success');
+    } else if (type === 'code-error') {
+      showStatus('코드 생성 실패: ' + error, 'error');
+    }
+  });
 
   // Scan button event
   scanButton.addEventListener('click', () => {

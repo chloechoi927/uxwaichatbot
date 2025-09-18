@@ -1430,13 +1430,31 @@ function applyTextModification(text) {
   // 텍스트 수정 적용
   console.log('기존 텍스트:', textNode.characters);
   console.log('새 텍스트:', text);
-  textNode.characters = text;
-  console.log('텍스트 수정 완료');
   
-  figma.ui.postMessage({
-    type: 'success',
-    message: 'Text modified successfully'
-  });
+  try {
+    // 텍스트 변경
+    textNode.characters = text;
+    console.log('텍스트 수정 완료');
+    
+    // 피그마에 변경사항 알림
+    figma.notify('텍스트가 성공적으로 수정되었습니다: ' + text);
+    
+    // UI에 성공 메시지 전송
+    figma.ui.postMessage({
+      type: 'success',
+      message: 'Text modified successfully'
+    });
+    
+    // 피그마 새로고침 (필요시)
+    figma.viewport.scrollAndZoomIntoView([textNode]);
+    
+  } catch (error) {
+    console.error('텍스트 수정 중 오류:', error);
+    figma.ui.postMessage({
+      type: 'error',
+      message: 'Failed to modify text: ' + error.message
+    });
+  }
 }
 
 // 플러그인 시작
