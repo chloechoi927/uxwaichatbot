@@ -500,16 +500,25 @@ function generateAlternativeText(text, variant) {
 
 // 폴백 번역 (API 실패시)
 function getFallbackTranslation(text, targetLanguage) {
+  // 개선된 텍스트로 번역 (하십시오 -> 해주세요, 교환권(QR 코드)을 -> QR 코드를)
+  let improvedText = text;
+  if (text.includes('하십시오')) {
+    improvedText = improvedText.replace(/하십시오/g, '해주세요');
+  }
+  if (improvedText.includes('교환권(QR 코드)을')) {
+    improvedText = improvedText.replace(/교환권\(QR 코드\)을/g, 'QR 코드를');
+  }
+  
   const fallbackTranslations = {
-    'en': 'Please prepare your exchange ticket (QR code) in advance.',
-    'ja': '事前に交換券（QRコード）をご準備ください。',
-    'zh-cn': '请提前准备好兑换券（QR码）。',
-    'zh-tw': '請提前準備好兌換券（QR碼）。',
-    'es': 'Por favor, prepare su boleto de intercambio (código QR) con anticipación.',
-    'vi': 'Vui lòng chuẩn bị trước phiếu đổi (mã QR).'
+    'en': 'Please prepare your QR code in advance.',
+    'ja': '事前にQRコードをご準備ください。',
+    'zh-cn': '请提前准备好QR码。',
+    'zh-tw': '請提前準備好QR碼。',
+    'es': 'Por favor, prepare su código QR con anticipación.',
+    'vi': 'Vui lòng chuẩn bị trước mã QR.'
   };
   
-  return fallbackTranslations[targetLanguage] || text;
+  return fallbackTranslations[targetLanguage] || improvedText;
 }
 
 // 다국어 번역 생성
@@ -1009,7 +1018,15 @@ async function callClaudeAPI(text, action, targetLanguage = null, context = null
 async function translateText(text, targetLanguage) {
   try {
     const result = await callClaudeAPI(text, 'translate', targetLanguage);
-    return result.translation || result.trim();
+    const translation = result.translation || result.trim();
+    
+    // 실제 번역인지 확인 (메타 메시지가 아닌지)
+    if (translation.includes('Translated') && translation.includes('to')) {
+      console.log(`번역이 메타 메시지로 반환됨, 폴백 사용: ${targetLanguage}`);
+      return getFallbackTranslation(text, targetLanguage);
+    }
+    
+    return translation;
   } catch (error) {
     console.error(`번역 실패 (${targetLanguage}):`, error);
     return getFallbackTranslation(text, targetLanguage);
