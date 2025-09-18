@@ -411,8 +411,8 @@ function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
     console.log('개선 제안 추가됨 (100%):', improvedText);
     
     // 추가 톤별 제안 (2개)
-    // 친근한 톤
-    const friendlyText = improvedText.replace(/해주세요/g, '해주세요!');
+    // 친근한 톤 (느낌표 없이)
+    const friendlyText = improvedText.replace(/해주세요/g, '해주세요');
     if (friendlyText !== improvedText) {
       suggestions.push({
         text: friendlyText,
@@ -507,7 +507,7 @@ function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
     });
   }
   
-  return suggestions.slice(0, 5); // 최대 5개 제안
+  return suggestions.slice(0, 3); // 최대 3개 제안
 }
 
 // 대안 문구 생성
@@ -904,7 +904,7 @@ function generateAISuggestions(text, uiType, koreanTone, localAnalysis) {
     suggestions.push(uiTypeSuggestion);
   }
   
-  return suggestions.slice(0, 5); // 최대 5개 제안
+  return suggestions.slice(0, 3); // 최대 3개 제안
 }
 
 // 다국어 제안 생성
@@ -1323,6 +1323,11 @@ figma.ui.onmessage = async (msg) => {
     });
   }
 
+  if (msg.type === 'apply-text-modification') {
+    const { text } = msg;
+    applyTextModification(text);
+  }
+
   if (msg.type === 'close') {
     figma.closePlugin();
   }
@@ -1360,6 +1365,36 @@ function main() {
       });
     }
   }
+}
+
+// 텍스트 수정 적용 함수
+function applyTextModification(text) {
+  const selection = figma.currentPage.selection;
+  
+  if (selection.length === 0) {
+    figma.ui.postMessage({
+      type: 'error',
+      message: 'No text layer selected'
+    });
+    return;
+  }
+  
+  const textNode = selection[0];
+  if (textNode.type !== 'TEXT') {
+    figma.ui.postMessage({
+      type: 'error',
+      message: 'Selected layer is not a text layer'
+    });
+    return;
+  }
+  
+  // 텍스트 수정 적용
+  textNode.characters = text;
+  
+  figma.ui.postMessage({
+    type: 'success',
+    message: 'Text modified successfully'
+  });
 }
 
 // 플러그인 시작

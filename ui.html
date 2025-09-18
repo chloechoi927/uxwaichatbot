@@ -417,6 +417,28 @@
     height: 14px;
   }
 
+  .improved-sentence-section {
+    margin-bottom: 16px;
+  }
+
+  .improved-sentence-card {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .improved-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #0369a1;
+    flex: 1;
+  }
+
   .translation-lang {
     font-size: 10px;
     font-weight: 600;
@@ -686,20 +708,74 @@
 
   // 클립보드 복사 기능
   function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      // 복사 성공 시 간단한 피드백
-      const btn = event.target;
-      const originalText = btn.textContent;
-      btn.textContent = '✓';
-      btn.style.background = '#10b981';
-      setTimeout(() => {
-        btn.textContent = originalText;
-        btn.style.background = '#6366f1';
-      }, 1000);
-    }).catch(err => {
+    // 텍스트를 클립보드에 복사
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        showCopyFeedback(event.target);
+      }).catch(err => {
+        console.error('복사 실패:', err);
+        fallbackCopyTextToClipboard(text);
+      });
+    } else {
+      // 폴백 방법
+      fallbackCopyTextToClipboard(text);
+    }
+  }
+
+  // 폴백 복사 방법
+  function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        showCopyFeedback(event.target);
+      } else {
+        alert('복사에 실패했습니다.');
+      }
+    } catch (err) {
       console.error('복사 실패:', err);
       alert('복사에 실패했습니다.');
-    });
+    }
+    
+    document.body.removeChild(textArea);
+  }
+
+  // 복사 피드백 표시
+  function showCopyFeedback(btn) {
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>';
+    btn.style.color = '#10b981';
+    setTimeout(() => {
+      btn.innerHTML = originalContent;
+      btn.style.color = '#6b7280';
+    }, 1000);
+  }
+
+  // 텍스트 수정 적용 기능
+  function applyTextModification() {
+    if (selectedSuggestions.length === 0) {
+      alert('수정할 제안을 선택해주세요.');
+      return;
+    }
+
+    // 선택된 제안의 텍스트 가져오기
+    const selectedText = selectedSuggestions[0].text;
+    
+    // 피그마에 텍스트 수정 요청
+    parent.postMessage({
+      pluginMessage: {
+        type: 'apply-text-modification',
+        text: selectedText
+      }
+    }, '*');
   }
 
   // Scan button event
@@ -832,6 +908,25 @@
               <div class="principles-title">적용된 UX 원칙</div>
               <div class="principle-item">사용자 친화적인 문구를 사용하기로 정함.</div>
               <div class="principle-item">하십시오 → 해주세요로 쓰기로 정함.</div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- 개선된 문장 섹션 -->
+        ${suggestions.length > 0 && suggestions[0].type === 'improvement' ? `
+          <div class="improved-sentence-section">
+            <div class="suggestions-title">
+              <span>✨</span>
+              개선된 문장
+            </div>
+            <div class="improved-sentence-card">
+              <div class="improved-text">${suggestions[0].text}</div>
+              <button class="copy-btn" onclick="copyToClipboard('${suggestions[0].text.replace(/'/g, "\\'")}')" title="복사">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
             </div>
           </div>
         ` : ''}
