@@ -388,6 +388,10 @@ function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
   
   // 기본 개선 제안 (하십시오 -> 해주세요)
   const improvedText = text.replace(/하십시오/g, '해주세요').replace(/하시기/g, '하기');
+  console.log('원본 텍스트:', text);
+  console.log('개선된 텍스트:', improvedText);
+  console.log('개선 여부:', improvedText !== text);
+  
   if (improvedText !== text) {
     suggestions.push({
       text: improvedText,
@@ -396,6 +400,7 @@ function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
       type: 'improvement',
       reason: '사용자 친화적인 문구로 개선'
     });
+    console.log('개선 제안 추가됨:', improvedText);
   }
   
   // 위반 패턴 기반 개선 제안
@@ -498,13 +503,16 @@ function getFallbackTranslation(text, targetLanguage) {
 
 // 다국어 번역 생성
 async function generateMultilingualTranslations(text) {
+  console.log('번역 시작 - 원본 텍스트:', text);
   const translations = {};
   const languages = ['en', 'ja', 'zh-cn', 'zh-tw', 'es', 'vi'];
   
   for (let i = 0; i < languages.length; i++) {
     const lang = languages[i];
+    console.log(`번역 시도 중: ${lang}`);
     try {
       const translation = await translateText(text, lang);
+      console.log(`${lang} 번역 결과:`, translation);
       translations[lang] = {
         text: translation,
         language: lang,
@@ -522,6 +530,7 @@ async function generateMultilingualTranslations(text) {
     }
   }
   
+  console.log('최종 번역 결과:', translations);
   return translations;
 }
 
@@ -939,6 +948,8 @@ function generateUITypeSuggestion(text, uiType) {
 
 // Claude API 호출 함수 (Vercel 프록시 사용)
 async function callClaudeAPI(text, action, targetLanguage = null, context = null) {
+  console.log('Claude API 호출 시작:', { text, action, targetLanguage, context });
+  
   try {
     const response = await fetch(`${CONFIG.API_BASE_URL}/api/claude`, {
       method: 'POST',
@@ -953,13 +964,17 @@ async function callClaudeAPI(text, action, targetLanguage = null, context = null
       })
     });
 
+    console.log('API 응답 상태:', response.status);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('API 응답 데이터:', data);
     
     if (data.success) {
+      console.log('API 성공, 결과:', data.result);
       return data.result;
     } else {
       throw new Error(data.error || 'API call failed');
