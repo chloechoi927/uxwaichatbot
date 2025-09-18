@@ -388,9 +388,14 @@
     border-color: #6366f1;
   }
 
-  .suggestion-content, .translation-content {
+  .suggestion-content,   .translation-content {
+    margin-bottom: 8px;
+  }
+
+  .translation-footer {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
   }
 
@@ -761,13 +766,16 @@
 
   // 텍스트 수정 적용 기능
   function applyTextModification() {
-    if (selectedSuggestions.length === 0) {
-      alert('수정할 제안을 선택해주세요.');
+    // 현재 결과에서 개선된 문장 찾기
+    const resultsContainer = document.getElementById('results');
+    const improvedTextElement = resultsContainer.querySelector('.improved-text');
+    
+    if (!improvedTextElement) {
+      alert('개선된 문장을 찾을 수 없습니다.');
       return;
     }
 
-    // 선택된 제안의 텍스트 가져오기
-    const selectedText = selectedSuggestions[0].text;
+    const selectedText = improvedTextElement.textContent;
     
     // 피그마에 텍스트 수정 요청
     parent.postMessage({
@@ -867,6 +875,9 @@
         </div>
         <div class="translation-content">
           <div class="translation-text">${data.text}</div>
+        </div>
+        <div class="translation-footer">
+          <div class="translation-length">${data.length.current || 0}/${data.length.max || 0} ${lengthStatus}</div>
           <button class="copy-btn" onclick="copyToClipboard('${data.text.replace(/'/g, "\\'")}')" title="복사">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -874,7 +885,6 @@
             </svg>
           </button>
         </div>
-        <div class="translation-length">${data.length.current || 0}/${data.length.max || 0} ${lengthStatus}</div>
       </div>
     `;
   }
@@ -898,34 +908,32 @@
           </div>
         </div>
 
-        <!-- 개선된 문장 섹션 -->
-        ${suggestions.length > 1 ? `
-          <div class="improved-text-section">
-            <label class="input-label">개선된 문장</label>
-            <div class="improved-text">${suggestions[1].text}</div>
-            
-            <div class="ux-principles">
-              <div class="principles-title">적용된 UX 원칙</div>
-              <div class="principle-item">사용자 친화적인 문구를 사용하기로 정함.</div>
-              <div class="principle-item">하십시오 → 해주세요로 쓰기로 정함.</div>
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- 개선된 문장 섹션 -->
-        ${suggestions.length > 0 && suggestions[0].type === 'improvement' ? `
+        <!-- 개선된 문장 섹션 (통합) -->
+        ${suggestions.length > 0 ? `
           <div class="improved-sentence-section">
             <div class="suggestions-title">
               <span>✨</span>
               개선된 문장
             </div>
             <div class="improved-sentence-card">
-              <div class="improved-text">${suggestions[0].text}</div>
-              <button class="copy-btn" onclick="copyToClipboard('${suggestions[0].text.replace(/'/g, "\\'")}')" title="복사">
+              <div class="improved-text">${suggestions.find(s => s.type === 'improvement')?.text || suggestions[0].text}</div>
+              <button class="copy-btn" onclick="copyToClipboard('${(suggestions.find(s => s.type === 'improvement')?.text || suggestions[0].text).replace(/'/g, "\\'")}')" title="복사">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
+              </button>
+            </div>
+            
+            <div class="ux-principles">
+              <div class="principles-title">적용된 UX 원칙</div>
+              <div class="principle-item">사용자 친화적인 문구를 사용하기로 정함.</div>
+              <div class="principle-item">하십시오 → 해주세요로 쓰기로 정함.</div>
+            </div>
+            
+            <div class="result-actions">
+              <button class="btn btn-primary" onclick="applyTextModification()">
+                텍스트 수정 적용
               </button>
             </div>
           </div>
