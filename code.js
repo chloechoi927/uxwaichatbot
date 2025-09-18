@@ -1325,6 +1325,7 @@ figma.ui.onmessage = async (msg) => {
 
   if (msg.type === 'apply-text-modification') {
     const { text } = msg;
+    console.log('텍스트 수정 요청 받음:', text);
     applyTextModification(text);
   }
 
@@ -1369,9 +1370,12 @@ function main() {
 
 // 텍스트 수정 적용 함수
 function applyTextModification(text) {
+  console.log('applyTextModification 호출됨:', text);
   const selection = figma.currentPage.selection;
+  console.log('선택된 노드 수:', selection.length);
   
   if (selection.length === 0) {
+    console.error('선택된 텍스트 레이어가 없습니다.');
     figma.ui.postMessage({
       type: 'error',
       message: 'No text layer selected'
@@ -1380,7 +1384,10 @@ function applyTextModification(text) {
   }
   
   const textNode = selection[0];
+  console.log('텍스트 노드 타입:', textNode.type);
+  
   if (textNode.type !== 'TEXT') {
+    console.error('선택된 레이어가 텍스트 레이어가 아닙니다.');
     figma.ui.postMessage({
       type: 'error',
       message: 'Selected layer is not a text layer'
@@ -1389,7 +1396,10 @@ function applyTextModification(text) {
   }
   
   // 텍스트 수정 적용
+  console.log('기존 텍스트:', textNode.characters);
+  console.log('새 텍스트:', text);
   textNode.characters = text;
+  console.log('텍스트 수정 완료');
   
   figma.ui.postMessage({
     type: 'success',

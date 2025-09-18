@@ -435,7 +435,7 @@
 
   .improved-sentence-card {
     background: #f0f9ff;
-    border: 1px solid #bae6fd;
+    border: none;
     border-radius: 8px;
     padding: 12px;
     display: flex;
@@ -786,10 +786,8 @@
     
     // 피그마에 텍스트 수정 요청
     parent.postMessage({
-      pluginMessage: {
-        type: 'apply-text-modification',
-        text: selectedText
-      }
+      type: 'apply-text-modification',
+      text: selectedText
     }, '*');
   }
 
@@ -1009,18 +1007,18 @@
         
         if (improvedTextElement) {
           const selectedText = improvedTextElement.textContent;
+          console.log('텍스트 수정 적용 시도:', selectedText);
           
           // 피그마에 텍스트 수정 요청
           parent.postMessage({
-            pluginMessage: {
-              type: 'apply-text-modification',
-              text: selectedText
-            }
+            type: 'apply-text-modification',
+            text: selectedText
           }, '*');
           
           e.target.textContent = '수정됨 ✓';
           e.target.disabled = true;
         } else {
+          console.error('개선된 문장을 찾을 수 없습니다.');
           alert('개선된 문장을 찾을 수 없습니다.');
         }
       });
