@@ -388,6 +388,27 @@
     border-color: #6366f1;
   }
 
+  .suggestion-content, .translation-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .copy-btn {
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .copy-btn:hover {
+    background: #4f46e5;
+  }
+
   .translation-lang {
     font-size: 10px;
     font-weight: 600;
@@ -655,6 +676,24 @@
     }
   }
 
+  // 클립보드 복사 기능
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      // 복사 성공 시 간단한 피드백
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = '✓';
+      btn.style.background = '#10b981';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '#6366f1';
+      }, 1000);
+    }).catch(err => {
+      console.error('복사 실패:', err);
+      alert('복사에 실패했습니다.');
+    });
+  }
+
   // Scan button event
   scanButton.addEventListener('click', () => {
     if (isLoading) return;
@@ -694,7 +733,12 @@
     const isSelected = selectedSuggestions.includes(index);
     return `
       <div class="suggestion-item ${isSelected ? 'selected' : ''}" data-index="${index}">
-        <div class="suggestion-text">${suggestion.text}</div>
+        <div class="suggestion-content">
+          <div class="suggestion-text">${suggestion.text}</div>
+          <button class="copy-btn" onclick="copyToClipboard('${suggestion.text.replace(/'/g, "\\'")}')" title="복사">
+            📋
+          </button>
+        </div>
         <div class="suggestion-meta">
           <div class="suggestion-score">${suggestion.score}%</div>
           <div class="suggestion-tags">
@@ -734,7 +778,12 @@
           [${lang.toUpperCase()}] ${langNames[lang] || lang}
           <span class="translation-quality ${qualityClass}">${qualityLabel}</span>
         </div>
-        <div class="translation-text">${data.text}</div>
+        <div class="translation-content">
+          <div class="translation-text">${data.text}</div>
+          <button class="copy-btn" onclick="copyToClipboard('${data.text.replace(/'/g, "\\'")}')" title="복사">
+            📋
+          </button>
+        </div>
         <div class="translation-length">${data.length.current || 0}/${data.length.max || 0} ${lengthStatus}</div>
       </div>
     `;

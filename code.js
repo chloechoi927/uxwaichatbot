@@ -296,8 +296,11 @@ async function analyzeTextNode(textNode) {
   const suggestions = generateImprovedSuggestions(text, koreanTone, localAnalysis);
   console.log('제안 문구들:', suggestions);
   
-  // 다국어 번역 생성
-  const translations = await generateMultilingualTranslations(suggestions[0].text || text);
+  // 다국어 번역 생성 (개선된 텍스트 우선, 없으면 원본)
+  const textForTranslation = suggestions.length > 1 && suggestions[1].type === 'improvement' 
+    ? suggestions[1].text 
+    : text;
+  const translations = await generateMultilingualTranslations(textForTranslation);
   console.log('번역 결과:', translations);
   
   return {
@@ -378,20 +381,12 @@ async function generateAppropriateCode(screenType, text) {
 function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
   const suggestions = [];
   
-  // 원본 텍스트
-  suggestions.push({
-    text: text,
-    score: 100,
-    tags: ['원본'],
-    type: 'original'
-  });
-  
   // 기본 개선 제안 (하십시오 -> 해주세요)
   let improvedText = text;
   
   // 하십시오 -> 해주세요 변환
   if (text.includes('하십시오')) {
-    improvedText = text.replace(/하십시오/g, '해주세요');
+    improvedText = improvedText.replace(/하십시오/g, '해주세요');
   }
   
   // 교환권(QR 코드)을 -> QR 코드를 간소화
@@ -399,20 +394,37 @@ function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
     improvedText = improvedText.replace(/교환권\(QR 코드\)을/g, 'QR 코드를');
   }
   
+  // 버튼 텍스트 개선 (~해요 -> ~하기)
+  if (improvedText.includes('볼래요')) {
+    improvedText = improvedText.replace(/볼래요/g, '보기');
+  }
+  if (improvedText.includes('해요') && !improvedText.includes('준비해요')) {
+    improvedText = improvedText.replace(/해요/g, '하기');
+  }
+  
   console.log('원본 텍스트:', text);
   console.log('개선된 텍스트:', improvedText);
   console.log('개선 여부:', improvedText !== text);
   
+  // 개선된 텍스트가 있으면 우선순위로 추가 (100%)
   if (improvedText !== text) {
     suggestions.push({
       text: improvedText,
-      score: 90,
+      score: 100,
       tags: ['개선', '사용자친화적'],
       type: 'improvement',
       reason: '사용자 친화적인 문구로 개선'
     });
-    console.log('개선 제안 추가됨:', improvedText);
+    console.log('개선 제안 추가됨 (100%):', improvedText);
   }
+  
+  // 원본 텍스트 (낮은 우선순위)
+  suggestions.push({
+    text: text,
+    score: 60,
+    tags: ['원본'],
+    type: 'original'
+  });
   
   // 위반 패턴 기반 개선 제안
   const violations = localAnalysis.violations || [];
