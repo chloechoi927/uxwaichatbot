@@ -1358,7 +1358,7 @@ figma.ui.onmessage = async (msg) => {
   if (msg.type === 'apply-text-modification') {
     const { text } = msg;
     console.log('텍스트 수정 요청 받음:', text);
-    applyTextModification(text);
+    await applyTextModification(text);
   }
 
   if (msg.type === 'close') {
@@ -1401,7 +1401,7 @@ function main() {
 }
 
 // 텍스트 수정 적용 함수
-function applyTextModification(text) {
+async function applyTextModification(text) {
   console.log('applyTextModification 호출됨:', text);
   const selection = figma.currentPage.selection;
   console.log('선택된 노드 수:', selection.length);
@@ -1432,6 +1432,11 @@ function applyTextModification(text) {
   console.log('새 텍스트:', text);
   
   try {
+    // 폰트 로드
+    console.log('폰트 로드 시작:', textNode.fontName);
+    await figma.loadFontAsync(textNode.fontName);
+    console.log('폰트 로드 완료');
+    
     // 텍스트 변경
     textNode.characters = text;
     console.log('텍스트 수정 완료');
@@ -1450,6 +1455,26 @@ function applyTextModification(text) {
     
   } catch (error) {
     console.error('텍스트 수정 중 오류:', error);
+    
+    // 폰트 로딩 실패 시 기본 폰트로 시도
+    if (error.message.includes('unloaded font')) {
+      try {
+        console.log('기본 폰트로 재시도...');
+        await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+        textNode.characters = text;
+        console.log('기본 폰트로 텍스트 수정 완료');
+        
+        figma.notify('텍스트가 성공적으로 수정되었습니다: ' + text);
+        figma.ui.postMessage({
+          type: 'success',
+          message: 'Text modified successfully with fallback font'
+        });
+        return;
+      } catch (fallbackError) {
+        console.error('폴백 폰트 로딩도 실패:', fallbackError);
+      }
+    }
+    
     figma.ui.postMessage({
       type: 'error',
       message: 'Failed to modify text: ' + error.message
