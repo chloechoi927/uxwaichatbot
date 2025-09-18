@@ -1,6 +1,6 @@
 {
   "name": "UX Writing Assistant for b.stage",
-  "id": "ux-writing-assistant-bstage-v2",
+  "id": "1550426172272619698",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
@@ -22,6 +22,7 @@
   "permissions": [
     "currentuser"
   ],
+  "documentAccess": "dynamic-page",
   "menu": [
     {
       "name": "UX Writing Assistant for b.stage",
