@@ -191,7 +191,7 @@
   /* 텍스트 입력 섹션 - Frontitude 스타일 */
   .text-input-section {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: none;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
@@ -277,7 +277,7 @@
   /* 제안 섹션 - Frontitude 스타일 */
   .suggestions-section {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: none;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
@@ -295,7 +295,7 @@
 
   .suggestion-item {
     background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    border: none;
     border-radius: 6px;
     padding: 12px;
     margin-bottom: 8px;
@@ -353,7 +353,7 @@
   /* 다국어 번역 섹션 */
   .translations-section {
     background: white;
-    border: 1px solid #e5e7eb;
+    border: none;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 16px;
@@ -377,7 +377,7 @@
 
   .translation-item {
     background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    border: none;
     border-radius: 6px;
     padding: 10px;
     transition: all 0.2s ease;
@@ -786,8 +786,10 @@
     
     // 피그마에 텍스트 수정 요청
     parent.postMessage({
-      type: 'apply-text-modification',
-      text: selectedText
+      pluginMessage: {
+        type: 'apply-text-modification',
+        text: selectedText
+      }
     }, '*');
   }
 
@@ -906,11 +908,11 @@
     const screenType = item.screenType || 'user';
 
     return `
-      <div class="result-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; overflow: hidden;">
+      <div class="result-card" style="background: white; border: none; border-radius: 8px; margin-bottom: 16px; overflow: hidden;">
         <!-- 기존 문장 섹션 -->
         <div class="text-input-section">
           <label class="input-label">기존 문장</label>
-          <div class="text-input" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; font-size: 13px; line-height: 1.4; min-height: 40px;">
+          <div class="text-input" style="background: #f9fafb; border: none; border-radius: 6px; padding: 12px; font-size: 13px; line-height: 1.4; min-height: 40px;">
             ${item.text}
           </div>
         </div>
@@ -1011,8 +1013,10 @@
           
           // 피그마에 텍스트 수정 요청
           parent.postMessage({
-            type: 'apply-text-modification',
-            text: selectedText
+            pluginMessage: {
+              type: 'apply-text-modification',
+              text: selectedText
+            }
           }, '*');
           
           e.target.textContent = '수정됨 ✓';

@@ -539,16 +539,48 @@ function getFallbackTranslation(text, targetLanguage) {
     improvedText = improvedText.replace(/교환권\(QR 코드\)을/g, 'QR 코드를');
   }
   
+  // 스캔한 텍스트에 따른 동적 번역
   const fallbackTranslations = {
-    'en': 'Please prepare your QR code in advance.',
-    'ja': '事前にQRコードをご準備ください。',
-    'zh-cn': '请提前准备好QR码。',
-    'zh-tw': '請提前準備好QR碼。',
-    'es': 'Por favor, prepare su código QR con anticipación.',
-    'vi': 'Vui lòng chuẩn bị trước mã QR.'
+    'en': {
+      '교환권(QR 코드)을 미리 준비해주세요': 'Please prepare your QR code in advance.',
+      'QR 코드를 미리 준비해주세요': 'Please prepare your QR code in advance.',
+      'QR 코드 보기': 'View QR Code',
+      '현장 상황에 따라 네트워크 상태가 원활하지 않을 수있어요.': 'Network conditions may not be stable depending on the on-site situation.'
+    },
+    'ja': {
+      '교환권(QR 코드)을 미리 준비해주세요': '事前にQRコードをご準備ください。',
+      'QR 코드를 미리 준비해주세요': '事前にQRコードをご準備ください。',
+      'QR 코드 보기': 'QRコードを見る',
+      '현장 상황에 따라 네트워크 상태가 원활하지 않을 수있어요.': '現場の状況により、ネットワーク状態が不安定になる場合があります。'
+    },
+    'zh-cn': {
+      '교환권(QR 코드)을 미리 준비해주세요': '请提前准备好QR码。',
+      'QR 코드를 미리 준비해주세요': '请提前准备好QR码。',
+      'QR 코드 보기': '查看QR码',
+      '현장 상황에 따라 네트워크 상태가 원활하지 않을 수있어요.': '根据现场情况，网络状态可能不稳定。'
+    },
+    'zh-tw': {
+      '교환권(QR 코드)을 미리 준비해주세요': '請提前準備好QR碼。',
+      'QR 코드를 미리 준비해주세요': '請提前準備好QR碼。',
+      'QR 코드 보기': '查看QR碼',
+      '현장 상황에 따라 네트워크 상태가 원활하지 않을 수있어요.': '根據現場情況，網路狀態可能不穩定。'
+    },
+    'es': {
+      '교환권(QR 코드)을 미리 준비해주세요': 'Por favor, prepare su código QR con anticipación.',
+      'QR 코드를 미리 준비해주세요': 'Por favor, prepare su código QR con anticipación.',
+      'QR 코드 보기': 'Ver código QR',
+      '현장 상황에 따라 네트워크 상태가 원활하지 않을 수있어요.': 'Las condiciones de red pueden no ser estables dependiendo de la situación del sitio.'
+    },
+    'vi': {
+      '교환권(QR 코드)을 미리 준비해주세요': 'Vui lòng chuẩn bị trước mã QR.',
+      'QR 코드를 미리 준비해주세요': 'Vui lòng chuẩn bị trước mã QR.',
+      'QR 코드 보기': 'Xem mã QR',
+      '현장 상황에 따라 네트워크 상태가 원활하지 않을 수있어요.': 'Tình trạng mạng có thể không ổn định tùy thuộc vào tình huống tại chỗ.'
+    }
   };
   
-  return fallbackTranslations[targetLanguage] || improvedText;
+  const languageTranslations = fallbackTranslations[targetLanguage] || {};
+  return languageTranslations[improvedText] || improvedText;
 }
 
 // 다국어 번역 생성
