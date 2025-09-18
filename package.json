@@ -1,13 +1,31 @@
 {
-  "name": "uxwaichatbot-proxy",
-  "version": "1.0.0",
-  "description": "Claude API proxy for Figma plugin",
-  "main": "api/claude.js",
+  "name": "ux-writing-assistant-pro",
+  "version": "2.0.0",
+  "description": "AI-powered UX writing assistant for Figma with text analysis, translation, and Google Sheets integration",
+  "main": "code.js",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel --prod"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": "18.x"
+  },
+  "keywords": [
+    "figma",
+    "plugin",
+    "ux-writing",
+    "ai",
+    "translation",
+    "claude",
+    "google-sheets"
+  ],
+  "author": "UX Writing Assistant Team",
+  "license": "MIT"
 }

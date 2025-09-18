@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src 'self' data:; connect-src https:;">
-<title>Enhanced UX Writing Auto Tagger</title>
+<title>UX Writing Assistant Pro</title>
 <style>
   * { 
     box-sizing: border-box; 
@@ -17,7 +17,7 @@
     font-size: 13px;
     line-height: 1.4;
     color: #1d1d1f;
-    background: #f6f6f6;
+    background: #f8f9fa;
     overflow: hidden;
   }
 
@@ -30,48 +30,97 @@
     overflow: hidden;
   }
 
-  /* Header */
+  /* Header - Frontitude 스타일 */
   .header {
-    background: white;
-    border-bottom: 1px solid #e5e5e7;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
     padding: 16px;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
   }
 
+  .header-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-subtitle {
+    font-size: 11px;
+    opacity: 0.9;
+    margin-bottom: 12px;
+  }
+
+  /* 기능 탭 - Frontitude 스타일 */
+  .function-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 2px;
+    margin-bottom: 8px;
+    backdrop-filter: blur(10px);
+  }
+
+  .function-tab {
+    flex: 1;
+    padding: 6px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+  }
+
+  .function-tab.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-bottom-color: white;
+  }
+
+  /* 카테고리 탭 - Frontitude 스타일 */
   .nav-tabs {
     display: flex;
-    background: #f6f6f6;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
     padding: 2px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(10px);
   }
 
   .nav-tab {
     flex: 1;
-    padding: 8px 12px;
+    padding: 6px 8px;
     background: transparent;
     border: none;
-    border-radius: 6px;
-    font-size: 12px;
+    border-radius: 4px;
+    font-size: 10px;
     font-weight: 500;
-    color: #6e6e73;
+    color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   .nav-tab.active {
-    background: #007aff;
-    color: white;
-    box-shadow: 0 1px 3px rgba(0, 122, 255, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+    color: #6366f1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
+  /* 스캔 버튼 - Frontitude 스타일 */
   .scan-button {
     width: 100%;
     padding: 12px;
-    background: #007aff;
-    color: white;
+    background: rgba(255, 255, 255, 0.9);
+    color: #6366f1;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -79,16 +128,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .scan-button:hover:not(:disabled) {
-    background: #0056cc;
+    background: white;
     transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
   .scan-button:disabled {
-    background: #c7c7cc;
+    background: rgba(255, 255, 255, 0.5);
     cursor: not-allowed;
     transform: none;
   }
@@ -117,13 +168,12 @@
     word-wrap: break-word;
     white-space: normal;
     line-height: 1.4;
-    max-height: none;
   }
 
   .status.info {
-    background: #e3f2ff;
-    color: #0066cc;
-    border-bottom: 1px solid #b3d9ff;
+    background: #e0f2fe;
+    color: #0277bd;
+    border-bottom: 1px solid #b3e5fc;
   }
 
   .status.error {
@@ -138,211 +188,181 @@
     border-bottom: 1px solid #c8e6c9;
   }
 
-  /* Card style */
-  .result-card {
+  /* 텍스트 입력 섹션 - Frontitude 스타일 */
+  .text-input-section {
     background: white;
-    border: 1px solid #e5e5e7;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-  }
-
-  .result-card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
-  }
-
-  .card-header {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
     padding: 16px;
-    border-bottom: 1px solid #f6f6f6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
-  .code-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .code {
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  .input-label {
     font-size: 12px;
     font-weight: 600;
-    color: #007aff;
-    background: #f0f7ff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid #cce7ff;
+    color: #374151;
+    margin-bottom: 8px;
+    display: block;
   }
 
-  .code.existing {
-    color: #ff9500;
-    background: #fff8f0;
-    border-color: #ffcc80;
-  }
-
-  .ui-type {
-    font-size: 10px;
-    text-transform: uppercase;
-    color: #8e8e93;
-    background: #f2f2f7;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-
-  .existing-notice {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 16px;
-    font-size: 12px;
-    color: #856404;
-  }
-
-  .text-content {
-    padding: 16px;
-    border-bottom: 1px solid #f6f6f6;
-  }
-
-  .text-preview {
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #1d1d1f;
-    word-break: keep-all;
-  }
-
-  /* Metrics */
-  .metrics {
-    padding: 16px;
-    border-bottom: 1px solid #f6f6f6;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .metric {
-    text-align: center;
-    padding: 12px;
-    background: #fafafa;
-    border-radius: 8px;
-    border: 1px solid #f0f0f0;
-  }
-
-  .metric-value {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    line-height: 1;
-  }
-
-  .metric-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    color: #8e8e93;
-    font-weight: 500;
-  }
-
-  .tone-excellent { color: #34c759; }
-  .tone-good { color: #007aff; }
-  .tone-warning { color: #ff9500; }
-  .tone-poor { color: #ff3b30; }
-
-  .length-bar {
+  .text-input {
     width: 100%;
-    height: 4px;
-    background: #e5e5ea;
-    border-radius: 2px;
-    margin-top: 6px;
-    overflow: hidden;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
   }
 
-  .length-fill {
-    height: 100%;
-    background: #34c759;
-    transition: width 0.3s ease;
-    border-radius: 2px;
+  .text-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 
-  .length-fill.warning { background: #ff9500; }
-  .length-fill.error { background: #ff3b30; }
-
-  /* Violations */
-  .violations {
-    padding: 0 16px 16px;
-    border-bottom: 1px solid #f6f6f6;
-  }
-
-  .violation {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 12px;
-    background: #fff8f0;
-    border: 1px solid #ffe4cc;
+  /* 개선된 텍스트 섹션 */
+  .improved-text-section {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
     border-radius: 8px;
-    margin-bottom: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
   }
 
-  .violation-icon {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #ff9500;
-    flex-shrink: 0;
+  .improved-text {
+    background: white;
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 13px;
+    color: #1d1d1f;
+    line-height: 1.4;
     margin-top: 8px;
   }
 
-  .violation-text {
-    font-size: 12px;
-    color: #8b4513;
-    line-height: 1.4;
+  /* 적용된 UX 원칙 */
+  .ux-principles {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 12px;
   }
 
-  /* Suggestions */
-  .suggestions {
+  .principles-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 6px;
+  }
+
+  .principle-item {
+    font-size: 10px;
+    color: #92400e;
+    margin-bottom: 4px;
+    padding-left: 8px;
+    position: relative;
+  }
+
+  .principle-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+  }
+
+  /* 제안 섹션 - Frontitude 스타일 */
+  .suggestions-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
     padding: 16px;
-    border-bottom: 1px solid #f6f6f6;
-    background: #f0fff4;
+    margin-bottom: 16px;
   }
 
   .suggestions-title {
     font-size: 12px;
     font-weight: 600;
-    color: #2d5016;
-    margin-bottom: 8px;
+    color: #374151;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  .suggested-text {
-    background: white;
-    border: 1px solid #c3e6cb;
-    border-radius: 8px;
-    padding: 10px;
+  .suggestion-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .suggestion-item:hover {
+    background: #f3f4f6;
+    border-color: #6366f1;
+  }
+
+  .suggestion-item.selected {
+    background: #eef2ff;
+    border-color: #6366f1;
+  }
+
+  .suggestion-text {
     font-size: 13px;
     color: #1d1d1f;
     line-height: 1.4;
+    margin-bottom: 6px;
   }
 
-  /* Translation section */
-  .translations {
+  .suggestion-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #6b7280;
+  }
+
+  .suggestion-score {
+    background: #10b981;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .suggestion-tags {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tag {
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+  }
+
+  /* 다국어 번역 섹션 */
+  .translations-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
     padding: 16px;
-    border-bottom: 1px solid #f6f6f6;
+    margin-bottom: 16px;
   }
 
   .translations-title {
     font-size: 12px;
     font-weight: 600;
-    color: #1d1d1f;
+    color: #374151;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -356,17 +376,22 @@
   }
 
   .translation-item {
-    background: #fafafa;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
     padding: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .translation-item:hover {
+    background: #f3f4f6;
+    border-color: #6366f1;
   }
 
   .translation-lang {
     font-size: 10px;
     font-weight: 600;
-    text-transform: uppercase;
-    color: #8e8e93;
+    color: #6b7280;
     margin-bottom: 4px;
     display: flex;
     justify-content: space-between;
@@ -375,14 +400,10 @@
 
   .translation-quality {
     font-size: 8px;
-    padding: 1px 4px;
+    padding: 2px 4px;
     border-radius: 3px;
-    background: #34c759;
+    background: #10b981;
     color: white;
-  }
-
-  .translation-quality.placeholder {
-    background: #ff9500;
   }
 
   .translation-text {
@@ -394,26 +415,23 @@
 
   .translation-length {
     font-size: 10px;
-    color: #8e8e93;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    color: #6b7280;
   }
 
-  /* Action buttons */
+  /* 액션 버튼들 */
   .actions {
-    padding: 16px;
     display: flex;
     gap: 8px;
+    margin-top: 16px;
   }
 
   .btn {
     flex: 1;
     padding: 10px 16px;
-    border: 1px solid #e5e5e7;
-    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     background: white;
-    color: #1d1d1f;
+    color: #374151;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
@@ -422,65 +440,64 @@
   }
 
   .btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #f9fafb;
+    border-color: #9ca3af;
   }
 
   .btn.primary {
-    background: #007aff;
+    background: #6366f1;
     color: white;
-    border-color: #007aff;
+    border-color: #6366f1;
   }
 
   .btn.primary:hover:not(:disabled) {
-    background: #0056cc;
+    background: #5b21b6;
   }
 
   .btn.success {
-    background: #34c759;
+    background: #10b981;
     color: white;
-    border-color: #34c759;
+    border-color: #10b981;
   }
 
   .btn.success:hover:not(:disabled) {
-    background: #2fb74a;
+    background: #059669;
   }
 
   .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
   }
 
-  /* Empty state */
+  /* Empty State */
   .empty-state {
     text-align: center;
-    padding: 60px 20px;
-    color: #8e8e93;
+    padding: 40px 20px;
+    color: #6b7280;
   }
 
   .empty-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 32px;
+    margin-bottom: 12px;
     opacity: 0.6;
   }
 
   .empty-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
-    margin-bottom: 8px;
-    color: #1d1d1f;
+    margin-bottom: 6px;
+    color: #374151;
   }
 
   .empty-subtitle {
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 12px;
+    line-height: 1.4;
   }
 
   /* Loading */
   .spinner {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top: 2px solid white;
     border-radius: 50%;
@@ -492,27 +509,9 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Tip */
-  .tip {
-    background: #f0f7ff;
-    border: 1px solid #cce7ff;
-    border-radius: 8px;
-    padding: 8px 16px;
-    margin: 0;
-    font-size: 11px;
-    color: #0066cc;
-    line-height: 1.4;
-    word-wrap: break-word;
-    white-space: normal;
-  }
-
-  .tip-icon {
-    margin-right: 4px;
-  }
-
   /* Scrollbar */
   .content::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
 
   .content::-webkit-scrollbar-track {
@@ -520,12 +519,12 @@
   }
 
   .content::-webkit-scrollbar-thumb {
-    background: #c7c7cc;
-    border-radius: 3px;
+    background: #d1d5db;
+    border-radius: 2px;
   }
 
   .content::-webkit-scrollbar-thumb:hover {
-    background: #aeaeb2;
+    background: #9ca3af;
   }
 
   /* Responsive */
@@ -543,15 +542,33 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="nav-tabs" id="navTabs">
-        <button class="nav-tab active" data-type="S">Service (S)</button>
-        <button class="nav-tab" data-type="A">Admin (A)</button>
-        <button class="nav-tab" data-type="P">App (P)</button>
-        <button class="nav-tab" data-type="B">Button (B)</button>
-        <button class="nav-tab" data-type="C">Common (C)</button>
+      <div class="header-title">
+        <span>✨</span>
+        UX Writing Assistant Pro
       </div>
+      <div class="header-subtitle">
+        AI 기반 텍스트 분석, 번역 및 UX 최적화
+      </div>
+      
+      <!-- 기능 탭 -->
+      <div class="function-tabs" id="functionTabs">
+        <button class="function-tab active" data-function="review">문장 검수</button>
+        <button class="function-tab" data-function="generate">문장 생성</button>
+        <button class="function-tab" data-function="multilingual">다국어</button>
+        <button class="function-tab" data-function="code">다국어 코드 채번</button>
+      </div>
+      
+      <!-- 카테고리 탭 -->
+      <div class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-type="S">서비스(S)</button>
+        <button class="nav-tab" data-type="A">어드민(A)</button>
+        <button class="nav-tab" data-type="P">앱(P)</button>
+        <button class="nav-tab" data-type="B">버튼(B)</button>
+        <button class="nav-tab" data-type="C">공통(C)</button>
+      </div>
+      
       <button class="scan-button" id="scanButton">
-        <span id="scanText">Scan Selected Text</span>
+        <span id="scanText">🔍 선택된 텍스트 스캔하기</span>
         <div class="spinner" id="spinner" style="display: none;"></div>
       </button>
     </div>
@@ -562,18 +579,19 @@
         <div id="results"></div>
         
         <div class="empty-state" id="emptyState">
-          <div class="empty-icon">🔍</div>
-          <div class="empty-title">Select text and scan</div>
+          <div class="empty-icon">🎯</div>
+          <div class="empty-title">텍스트 레이어를 선택하세요</div>
           <div class="empty-subtitle">
-            Auto-generate multilingual codes with AI review<br>
-            and perform voice tone inspection.
+            AI 기반 UX 라이팅 제안,<br>
+            다국어 번역, 그리고<br>
+            자동 코드 생성을 받아보세요.
           </div>
         </div>
 
-        <div class="tip">
-          <span class="tip-icon">💡</span>
-          <strong>How to use:</strong> Select text layers in Figma and click the scan button. 
-          Perform natural multilingual translation and UX writing inspection through Claude AI.
+        <div class="tip" style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 12px; margin: 16px 0; font-size: 11px; color: #0369a1;">
+          <span style="margin-right: 4px;">💡</span>
+          <strong>사용법:</strong> Figma에서 텍스트 레이어를 선택하고 스캔 버튼을 클릭하세요. 
+          포괄적인 UX 분석, 번역, AI 제안을 받아보세요.
         </div>
       </div>
     </div>
@@ -583,8 +601,10 @@
 (function() {
   let currentCodeType = 'S';
   let isLoading = false;
+  let selectedSuggestions = [];
 
   // DOM elements
+  const functionTabs = document.getElementById('functionTabs');
   const navTabs = document.getElementById('navTabs');
   const scanButton = document.getElementById('scanButton');
   const scanText = document.getElementById('scanText');
@@ -593,7 +613,19 @@
   const results = document.getElementById('results');
   const emptyState = document.getElementById('emptyState');
 
-  // Navigation tab events
+  let currentFunction = 'review';
+
+  // 기능 탭 이벤트
+  functionTabs.addEventListener('click', (e) => {
+    if (e.target.classList.contains('function-tab')) {
+      functionTabs.querySelectorAll('.function-tab').forEach(tab => tab.classList.remove('active'));
+      e.target.classList.add('active');
+      currentFunction = e.target.dataset.function;
+      updateUIForFunction(currentFunction);
+    }
+  });
+
+  // 카테고리 탭 이벤트
   navTabs.addEventListener('click', (e) => {
     if (e.target.classList.contains('nav-tab')) {
       navTabs.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -601,6 +633,27 @@
       currentCodeType = e.target.dataset.type;
     }
   });
+
+  // 기능에 따른 UI 업데이트
+  function updateUIForFunction(functionType) {
+    const scanButton = document.getElementById('scanButton');
+    const scanText = document.getElementById('scanText');
+    
+    switch(functionType) {
+      case 'review':
+        scanText.textContent = '🔍 선택된 텍스트 스캔하기';
+        break;
+      case 'generate':
+        scanText.textContent = '✨ 문장 생성하기';
+        break;
+      case 'multilingual':
+        scanText.textContent = '🌐 다국어 번역하기';
+        break;
+      case 'code':
+        scanText.textContent = '📋 코드 채번하기';
+        break;
+    }
+  }
 
   // Scan button event
   scanButton.addEventListener('click', () => {
@@ -636,174 +689,119 @@
     status.style.display = 'none';
   }
 
-  // Tone score class
-  function getToneScoreClass(score) {
-    if (score >= 95) return 'tone-excellent';
-    if (score >= 85) return 'tone-good';
-    if (score >= 70) return 'tone-warning';
-    return 'tone-poor';
-  }
-
-  // Length info rendering
-  function renderLengthMetric(lengthInfo) {
-    if (!lengthInfo || lengthInfo.status === 'unknown') {
-      return `
-        <div class="metric-value">-</div>
-        <div class="metric-label">Length</div>
-      `;
-    }
-
-    const percentage = Math.min(100, lengthInfo.percentage || 0);
-    const fillClass = lengthInfo.status === 'ok' ? '' : 
-                      percentage <= 120 ? 'warning' : 'error';
-
-    const statusIcon = lengthInfo.status === 'ok' ? '✓' : '!';
-
+  // 제안 아이템 렌더링
+  function renderSuggestionItem(suggestion, index) {
+    const isSelected = selectedSuggestions.includes(index);
     return `
-      <div class="metric-value">${lengthInfo.current}/${lengthInfo.max} ${statusIcon}</div>
-      <div class="metric-label">Length (KO)</div>
-      <div class="length-bar">
-        <div class="length-fill ${fillClass}" style="width: ${percentage}%"></div>
-      </div>
-    `;
-  }
-
-  // Violations rendering
-  function renderViolations(violations) {
-    if (!violations || !violations.length) return '';
-
-    return `
-      <div class="violations">
-        ${violations.map(v => `
-          <div class="violation">
-            <div class="violation-icon"></div>
-            <div class="violation-text">${v.reason}</div>
+      <div class="suggestion-item ${isSelected ? 'selected' : ''}" data-index="${index}">
+        <div class="suggestion-text">${suggestion.text}</div>
+        <div class="suggestion-meta">
+          <div class="suggestion-score">${suggestion.score}%</div>
+          <div class="suggestion-tags">
+            ${suggestion.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
           </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  // Suggestions rendering
-  function renderSuggestions(violations, originalText) {
-    if (!violations || !violations.length) return '';
-
-    let correctedText = originalText;
-    violations.forEach(v => {
-      if (v.suggested && v.suggested !== originalText) {
-        correctedText = v.suggested;
-      }
-    });
-
-    if (correctedText === originalText) return '';
-
-    return `
-      <div class="suggestions">
-        <div class="suggestions-title">
-          <span>🔧</span>
-          Auto Correction Suggestion
         </div>
-        <div class="suggested-text">${correctedText}</div>
       </div>
     `;
   }
 
-  // Translation results rendering
-  function renderTranslations(translations) {
-    if (!translations) return '';
-
+  // 번역 아이템 렌더링
+  function renderTranslationItem(lang, data) {
     const langNames = {
-      en: 'English',
+      en: 'ENGLISH',
       ja: '日本語',
       'zh-cn': '中文简',
       'zh-tw': '中文繁',
-      es: 'Español',
-      vi: 'Tiếng Việt'
+      es: 'ESPAÑOL',
+      fr: 'FRANÇAIS',
+      de: 'DEUTSCH',
+      it: 'ITALIANO',
+      pt: 'PORTUGUÊS',
+      ru: 'РУССКИЙ',
+      ar: 'العربية',
+      hi: 'हिन्दी',
+      th: 'ไทย',
+      vi: 'TIẾNG VIỆT'
     };
 
-    return `
-      <div class="translations">
-        <div class="translations-title">
-          <span>🌐</span>
-          AI Multilingual Translation
-        </div>
-        <div class="translation-grid">
-          ${Object.entries(translations).map(([lang, data]) => {
-            const lengthStatus = data.length.status === 'ok' ? '✓' : 
-                               data.length.status === 'too-long' ? '!' : '?';
-            const qualityLabel = data.quality === 'ux-guided' ? 'UX' : 
-                    data.quality === 'ai-generated' ? 'AI' : 'DEV';
-            const qualityClass = data.quality === 'ai-generated' ? '' : 'placeholder';
+    const qualityLabel = data.quality === 'ai-generated' ? 'AI' : 'DEV';
+    const qualityClass = data.quality === 'ai-generated' ? '' : 'placeholder';
+    const lengthStatus = data.length.status === 'ok' ? '✓' : '?';
 
-            return `
-              <div class="translation-item">
-                <div class="translation-lang">
-                  ${langNames[lang] || lang}
-                  <span class="translation-quality ${qualityClass}">${qualityLabel}</span>
-                </div>
-                <div class="translation-text">${data.text}</div>
-                <div class="translation-length">
-                  ${data.length.current || 0}/${data.length.max || 0} ${lengthStatus}
-                </div>
-              </div>
-            `;
-          }).join('')}
+    return `
+      <div class="translation-item">
+        <div class="translation-lang">
+          [${lang.toUpperCase()}] ${langNames[lang] || lang}
+          <span class="translation-quality ${qualityClass}">${qualityLabel}</span>
         </div>
+        <div class="translation-text">${data.text}</div>
+        <div class="translation-length">${data.length.current || 0}/${data.length.max || 0} ${lengthStatus}</div>
       </div>
     `;
   }
 
-  // Result card rendering
+  // 결과 카드 렌더링 - Frontitude 스타일
   function renderResultCard(item) {
     const isExisting = item.type === 'existing';
-    const report = item.report || {};
-    const toneScore = report.toneScore || 100;
-    const violations = report.toneViolations || [];
-    const lengthInfo = report.length || {};
-    const translations = report.translations || {};
+    const analysis = item.analysis || {};
+    const violations = analysis.localAnalysis?.violations || [];
+    const translations = item.translations || {};
+    const suggestions = item.suggestions || [];
+    const screenType = item.screenType || 'user';
 
     return `
-      <div class="result-card">
-        <div class="card-header">
-          <div class="code-info">
-            <div class="code ${isExisting ? 'existing' : ''}">${item.code}</div>
-            <div class="ui-type">${item.uiType}</div>
+      <div class="result-card" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; overflow: hidden;">
+        <!-- 기존 문장 섹션 -->
+        <div class="text-input-section">
+          <label class="input-label">기존 문장</label>
+          <div class="text-input" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; font-size: 13px; line-height: 1.4; min-height: 40px;">
+            ${item.text}
           </div>
         </div>
-        
-        ${isExisting ? `
-          <div class="existing-notice">
-            ⚠️ <strong>Existing Code Found</strong> - Same text already registered.
-          </div>
-        ` : ''}
-        
-        <div class="text-content">
-          <div class="text-preview">${item.text}</div>
-        </div>
-        
-        ${!isExisting ? `
-          <div class="metrics">
-            <div class="metric">
-              <div class="metric-value ${getToneScoreClass(toneScore)}">${toneScore}</div>
-              <div class="metric-label">Tone Score</div>
-            </div>
-            <div class="metric">
-              ${renderLengthMetric(lengthInfo)}
+
+        <!-- 개선된 문장 섹션 -->
+        ${suggestions.length > 1 ? `
+          <div class="improved-text-section">
+            <label class="input-label">개선된 문장</label>
+            <div class="improved-text">${suggestions[1].text}</div>
+            
+            <div class="ux-principles">
+              <div class="principles-title">적용된 UX 원칙</div>
+              <div class="principle-item">사용자 친화적인 문구를 사용하기로 정함.</div>
+              <div class="principle-item">하십시오 → 해주세요로 쓰기로 정함.</div>
             </div>
           </div>
-          
-          ${renderViolations(violations)}
-          ${renderSuggestions(violations, item.text)}
-          ${renderTranslations(translations)}
         ` : ''}
-        
+
+        <!-- 제안 문구 섹션 -->
+        ${suggestions.length > 0 ? `
+          <div class="suggestions-section">
+            <div class="suggestions-title">
+              <span>💡</span>
+              AI 제안 문구
+            </div>
+            ${suggestions.map((suggestion, index) => renderSuggestionItem(suggestion, index)).join('')}
+          </div>
+        ` : ''}
+
+        <!-- 다국어 번역 섹션 -->
+        ${Object.keys(translations).length > 0 ? `
+          <div class="translations-section">
+            <div class="suggestions-title">
+              <span>🌐</span>
+              AI 다국어 번역
+            </div>
+            <div class="translation-grid">
+              ${Object.entries(translations).map(([lang, data]) => renderTranslationItem(lang, data)).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- 액션 버튼들 -->
         <div class="actions">
-          <button class="btn primary apply-code" data-node-id="${item.nodeId}" data-code="${item.code}">
-            Apply Code to Layer
-          </button>
-          ${!isExisting && violations.length > 0 ? `
-            <button class="btn success apply-corrections" data-node-id="${item.nodeId}" data-text="${encodeURIComponent(violations[0].suggested || item.text)}">
-              Apply Text Correction
+          ${suggestions.length > 1 ? `
+            <button class="btn success apply-corrections" data-node-id="${item.nodeId}" data-text="${encodeURIComponent(suggestions[1].text)}">
+              텍스트 수정 적용
             </button>
           ` : ''}
         </div>
@@ -811,7 +809,7 @@
     `;
   }
 
-  // Results rendering
+  // 결과 렌더링
   function renderResults(data) {
     emptyState.style.display = 'none';
     
@@ -823,13 +821,13 @@
 
     results.innerHTML = data.map(renderResultCard).join('');
     
-    // Add event listeners
+    // 이벤트 리스너 추가
     results.querySelectorAll('.apply-code').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const nodeId = e.target.dataset.nodeId;
         const code = e.target.dataset.code;
         postMessage({ type: 'apply-code', data: { nodeId, code } });
-        e.target.textContent = 'Applied ✓';
+        e.target.textContent = '적용됨 ✓';
         e.target.disabled = true;
       });
     });
@@ -839,8 +837,24 @@
         const nodeId = e.target.dataset.nodeId;
         const correctedText = decodeURIComponent(e.target.dataset.text);
         postMessage({ type: 'apply-corrections', data: { nodeId, correctedText } });
-        e.target.textContent = 'Corrected ✓';
+        e.target.textContent = '수정됨 ✓';
         e.target.disabled = true;
+      });
+    });
+
+    // 제안 아이템 클릭 이벤트
+    results.querySelectorAll('.suggestion-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        const isSelected = selectedSuggestions.includes(index);
+        
+        if (isSelected) {
+          selectedSuggestions = selectedSuggestions.filter(i => i !== index);
+          e.currentTarget.classList.remove('selected');
+        } else {
+          selectedSuggestions.push(index);
+          e.currentTarget.classList.add('selected');
+        }
       });
     });
   }
@@ -857,13 +871,13 @@
 
     switch (msg.type) {
       case 'ready':
-        showStatus('Plugin is ready.', 'success');
+        showStatus('플러그인이 준비되었습니다.', 'success');
         setTimeout(hideStatus, 2000);
         break;
 
       case 'loading':
         setLoading(true);
-        showStatus(msg.message || 'Processing...', 'info');
+        showStatus(msg.message || '처리 중...', 'info');
         break;
 
       case 'error':
@@ -880,13 +894,13 @@
           const newCount = msg.data.filter(item => item.type === 'new').length;
           const existingCount = msg.data.filter(item => item.type === 'existing').length;
           
-          let message = `${msg.data.length} texts analyzed`;
+          let message = `${msg.data.length}개 텍스트 분석 완료`;
           if (newCount > 0 && existingCount > 0) {
-            message += ` (${newCount} new, ${existingCount} existing)`;
+            message += ` (신규 ${newCount}개, 기존 ${existingCount}개)`;
           } else if (newCount > 0) {
-            message += ` (${newCount} new codes generated)`;
+            message += ` (신규 코드 ${newCount}개 생성)`;
           } else if (existingCount > 0) {
-            message += ` (${existingCount} existing codes found)`;
+            message += ` (기존 코드 ${existingCount}개 발견)`;
           }
           
           showStatus(message, 'success');

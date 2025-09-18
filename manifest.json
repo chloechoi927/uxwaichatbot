@@ -1,6 +1,6 @@
 {
-  "name": "UX Writing Assistant for b.stage",
-  "id": "enhanced-ux-writing-tagger-v2",
+  "name": "UX Writing Assistant Pro",
+  "id": "ux-writing-assistant-pro",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
@@ -12,10 +12,20 @@
       "https://figma.com",
       "https://s3-alpha.figma.com",
       "https://uxwaichatbot-ai.vercel.app",
-      "https://sheets.googleapis.com"
+      "https://sheets.googleapis.com",
+      "https://api.anthropic.com",
+      "https://api.openai.com",
+      "https://translate.googleapis.com",
+      "https://language.googleapis.com"
     ]
   },
   "permissions": [
     "currentuser"
+  ],
+  "menu": [
+    {
+      "name": "UX Writing Assistant",
+      "command": "open-plugin"
+    }
   ]
 }
