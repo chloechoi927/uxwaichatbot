@@ -388,8 +388,15 @@
     border-color: #6366f1;
   }
 
-  .suggestion-content,   .translation-content {
+  .suggestion-content, .translation-content {
     margin-bottom: 8px;
+  }
+
+  .suggestion-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .translation-footer {
@@ -827,18 +834,20 @@
       <div class="suggestion-item ${isSelected ? 'selected' : ''}" data-index="${index}">
         <div class="suggestion-content">
           <div class="suggestion-text">${suggestion.text}</div>
+        </div>
+        <div class="suggestion-footer">
+          <div class="suggestion-meta">
+            <div class="suggestion-score">${suggestion.score}%</div>
+            <div class="suggestion-tags">
+              ${suggestion.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+          </div>
           <button class="copy-btn" onclick="copyToClipboard('${suggestion.text.replace(/'/g, "\\'")}')" title="복사">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
           </button>
-        </div>
-        <div class="suggestion-meta">
-          <div class="suggestion-score">${suggestion.score}%</div>
-          <div class="suggestion-tags">
-            ${suggestion.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-          </div>
         </div>
       </div>
     `;
@@ -930,12 +939,6 @@
               <div class="principle-item">사용자 친화적인 문구를 사용하기로 정함.</div>
               <div class="principle-item">하십시오 → 해주세요로 쓰기로 정함.</div>
             </div>
-            
-            <div class="result-actions">
-              <button class="btn btn-primary" onclick="applyTextModification()">
-                텍스트 수정 적용
-              </button>
-            </div>
           </div>
         ` : ''}
 
@@ -965,8 +968,8 @@
 
         <!-- 액션 버튼들 -->
         <div class="actions">
-          ${suggestions.length > 1 ? `
-            <button class="btn success apply-corrections" data-node-id="${item.nodeId}" data-text="${encodeURIComponent(suggestions[1].text)}">
+          ${suggestions.length > 0 ? `
+            <button class="btn success apply-corrections" data-node-id="${item.nodeId}" data-text="${encodeURIComponent(suggestions.find(s => s.type === 'improvement')?.text || suggestions[0].text)}">
               텍스트 수정 적용
             </button>
           ` : ''}
@@ -1000,11 +1003,26 @@
 
     results.querySelectorAll('.apply-corrections').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const nodeId = e.target.dataset.nodeId;
-        const correctedText = decodeURIComponent(e.target.dataset.text);
-        postMessage({ type: 'apply-corrections', data: { nodeId, correctedText } });
-        e.target.textContent = '수정됨 ✓';
-        e.target.disabled = true;
+        // 개선된 문장을 찾아서 적용
+        const resultsContainer = document.getElementById('results');
+        const improvedTextElement = resultsContainer.querySelector('.improved-text');
+        
+        if (improvedTextElement) {
+          const selectedText = improvedTextElement.textContent;
+          
+          // 피그마에 텍스트 수정 요청
+          parent.postMessage({
+            pluginMessage: {
+              type: 'apply-text-modification',
+              text: selectedText
+            }
+          }, '*');
+          
+          e.target.textContent = '수정됨 ✓';
+          e.target.disabled = true;
+        } else {
+          alert('개선된 문장을 찾을 수 없습니다.');
+        }
       });
     });
 
