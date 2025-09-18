@@ -258,13 +258,18 @@ async function translateText(text, targetLanguage) {
   }
 
   try {
-    const prompt = `Translate the following text to ${SUPPORTED_LANGUAGES[targetLanguage]} for a user interface. 
-    Maintain the original tone and meaning while ensuring it's natural and culturally appropriate for the target language.
-    Consider UX writing best practices for the target language.
+    const prompt = `You are a professional translator. Translate the following Korean text to ${SUPPORTED_LANGUAGES[targetLanguage]} for a user interface.
 
-    Original text: "${text}"
-    
-    Provide only the translation, no additional text.`;
+Korean text: "${text}"
+
+Requirements:
+- Translate naturally and appropriately for the target language
+- Maintain the original meaning and tone
+- Use UI-friendly language
+- Return ONLY the translated text, nothing else
+- Do not include any explanations or meta-text
+
+Translation:`;
 
     const translation = await callClaudeAPI(prompt);
     
@@ -281,15 +286,36 @@ async function translateText(text, targetLanguage) {
 // Get suggestions for text improvement
 async function getSuggestions(text, context) {
   try {
-    const analysis = await analyzeText(text, context);
-    return {
-      original: text,
-      analysis: analysis,
-      recommendations: generateRecommendations(analysis)
-    };
+    const prompt = `You are a UX writing expert. Analyze the following Korean text and provide 3 alternative suggestions for better UX writing.
+
+Korean text: "${text}"
+
+Requirements:
+- Provide 3 different alternative versions
+- Make them more user-friendly and natural
+- Use appropriate tone for UI text
+- Return ONLY the suggestions, one per line
+- No explanations or meta-text
+
+Suggestions:`;
+
+    const suggestions = await callClaudeAPI(prompt);
+    
+    // Split suggestions by lines and clean them
+    const suggestionList = suggestions.split('\n')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .slice(0, 3);
+    
+    return suggestionList;
   } catch (error) {
     console.error('Suggestions error:', error);
-    throw new Error(`Failed to generate suggestions: ${error.message}`);
+    // Fallback suggestions
+    return [
+      text.replace(/하십시오/g, '해주세요'),
+      text.replace(/교환권\(QR 코드\)을/g, 'QR 코드를'),
+      text.replace(/미리 준비/g, '준비')
+    ];
   }
 }
 

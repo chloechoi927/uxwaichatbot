@@ -387,7 +387,18 @@ function generateImprovedSuggestions(text, koreanTone, localAnalysis) {
   });
   
   // 기본 개선 제안 (하십시오 -> 해주세요)
-  const improvedText = text.replace(/하십시오/g, '해주세요').replace(/하시기/g, '하기');
+  let improvedText = text;
+  
+  // 하십시오 -> 해주세요 변환
+  if (text.includes('하십시오')) {
+    improvedText = text.replace(/하십시오/g, '해주세요');
+  }
+  
+  // 교환권(QR 코드)을 -> QR 코드를 간소화
+  if (improvedText.includes('교환권(QR 코드)을')) {
+    improvedText = improvedText.replace(/교환권\(QR 코드\)을/g, 'QR 코드를');
+  }
+  
   console.log('원본 텍스트:', text);
   console.log('개선된 텍스트:', improvedText);
   console.log('개선 여부:', improvedText !== text);
