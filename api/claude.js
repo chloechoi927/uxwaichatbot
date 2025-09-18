@@ -271,13 +271,7 @@ async function translateText(text, targetLanguage) {
     // Analyze the translated text
     const analysis = await analyzeText(translation, { uiType: 'translation' });
     
-    return {
-      text: translation.trim(),
-      language: targetLanguage,
-      quality: 'ai-generated',
-      length: analysis.length,
-      tone: analysis.tone
-    };
+    return translation.trim();
   } catch (error) {
     console.error('Translation error:', error);
     throw new Error(`Translation failed: ${error.message}`);
@@ -417,6 +411,9 @@ function generateSummary(analysis, translations) {
 async function callClaudeAPI(prompt) {
   const apiKey = process.env.CLAUDE_API_KEY;
   
+  console.log('Claude API 호출 시작, 프롬프트:', prompt);
+  console.log('API 키 존재 여부:', !!apiKey);
+  
   if (!apiKey) {
     throw new Error('Claude API key not configured');
   }
@@ -442,9 +439,13 @@ async function callClaudeAPI(prompt) {
   });
 
   if (!response.ok) {
+    console.error('Claude API 오류:', response.status, response.statusText);
     throw new Error(`Claude API error: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
-  return data.content[0].text;
+  console.log('Claude API 응답:', data);
+  const result = data.content[0].text;
+  console.log('Claude API 결과:', result);
+  return result;
 }
