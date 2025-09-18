@@ -1,6 +1,6 @@
 {
-  "name": "UX Writing Assistant Pro",
-  "id": "ux-writing-assistant-pro",
+  "name": "UX Writing Assistant for b.stage",
+  "id": "ux-writing-assistant-bstage",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
@@ -24,7 +24,7 @@
   ],
   "menu": [
     {
-      "name": "UX Writing Assistant",
+      "name": "UX Writing Assistant for b.stage",
       "command": "open-plugin"
     }
   ]
