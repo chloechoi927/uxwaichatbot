@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // CORS 설정
+  // CORS setup
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -17,7 +17,6 @@ export default async function handler(req, res) {
   try {
     const { text, action, targetLanguage } = req.body;
     
-    // 환경변수 확인
     const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
     if (!CLAUDE_API_KEY) {
       res.status(500).json({ 
@@ -27,14 +26,14 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 간단한 응답 (Claude API 없이 테스트)
+    // Simple test response
     let result;
     if (action === 'translate') {
-      result = `[TEST] Translated "${text}" to ${targetLanguage}`;
+      result = `Translated "${text}" to ${targetLanguage}`;
     } else if (action === 'suggest') {
-      result = `[TEST] Suggestions for "${text}": 1. Better text 2. Improved text 3. Refined text`;
+      result = `Suggestions for "${text}": 1. Better text 2. Improved text 3. Refined text`;
     } else {
-      result = `[TEST] Processed: ${text}`;
+      result = `Processed: ${text}`;
     }
 
     res.status(200).json({
@@ -43,7 +42,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Error:', error);
     res.status(500).json({
       success: false,
       error: error.message
